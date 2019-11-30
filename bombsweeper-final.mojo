@@ -11,13 +11,14 @@
     <src>bsel.luc</src>
     <src>led_list.luc</src>
     <src>bool.luc</src>
+    <src>asel.luc</src>
     <src>reg_addresses.luc</src>
     <src>btn_list.luc</src>
     <src>adderMul.luc</src>
     <src>btnDebouncer.luc</src>
     <src>regfile.luc</src>
-    <ucf>custom.ucf</ucf>
     <ucf lib="true">mojo.ucf</ucf>
+    <ucf>custom.ucf</ucf>
     <component>pn_gen.luc</component>
     <component>reset_conditioner.luc</component>
     <component>pipeline.luc</component>

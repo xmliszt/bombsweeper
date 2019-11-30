@@ -1,0 +1,163 @@
+NET "btnr0c0" LOC = P102;
+NET "btnr0c0" IOSTANDARD = LVTTL;
+NET "btnr0c0" PULLDOWN;
+NET "btnr0c1" LOC = P98;
+NET "btnr0c1" IOSTANDARD = LVTTL;
+NET "btnr0c1" PULLDOWN;
+NET "btnr0c2" LOC = P93;
+NET "btnr0c2" IOSTANDARD = LVTTL;
+NET "btnr0c2" PULLDOWN;
+NET "btnr0c3" LOC = P79;
+NET "btnr0c3" IOSTANDARD = LVTTL;
+NET "btnr0c3" PULLDOWN;
+
+NET "btnr1c0" LOC = P121;
+NET "btnr1c0" IOSTANDARD = LVTTL;
+NET "btnr1c0" PULLDOWN;
+NET "btnr1c1" LOC = P117;
+NET "btnr1c1" IOSTANDARD = LVTTL;
+NET "btnr1c1" PULLDOWN;
+NET "btnr1c2" LOC = P112;
+NET "btnr1c2" IOSTANDARD = LVTTL;
+NET "btnr1c2" PULLDOWN;
+NET "btnr1c3" LOC = P83;
+NET "btnr1c3" IOSTANDARD = LVTTL;
+NET "btnr1c3" PULLDOWN;
+
+NET "btnr2c0" LOC = P124;
+NET "btnr2c0" IOSTANDARD = LVTTL;
+NET "btnr2c0" PULLDOWN;
+NET "btnr2c1" LOC = P138;
+NET "btnr2c1" IOSTANDARD = LVTTL;
+NET "btnr2c1" PULLDOWN;
+NET "btnr2c2" LOC = P2;
+NET "btnr2c2" IOSTANDARD = LVTTL;
+NET "btnr2c2" PULLDOWN;
+NET "btnr2c3" LOC = P12;
+NET "btnr2c3" IOSTANDARD = LVTTL;
+NET "btnr2c3" PULLDOWN;
+
+NET "btnr3c0" LOC = P132;
+NET "btnr3c0" IOSTANDARD = LVTTL;
+NET "btnr3c0" PULLDOWN;
+NET "btnr3c1" LOC = P142;
+NET "btnr3c1" IOSTANDARD = LVTTL;
+NET "btnr3c1" PULLDOWN;
+NET "btnr3c2" LOC = P8;
+NET "btnr3c2" IOSTANDARD = LVTTL;
+NET "btnr3c2" PULLDOWN;
+NET "btnr3c3" LOC = P17;
+NET "btnr3c3" IOSTANDARD = LVTTL;
+NET "btnr3c3" PULLDOWN;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       
+NET "ledr0c0R" LOC = P101;
+NET "ledr0c0R" IOSTANDARD = LVTTL;
+NET "ledr0c0G" LOC = P100;
+NET "ledr0c0G" IOSTANDARD = LVTTL;
+NET "ledr0c0B" LOC = P99;
+NET "ledr0c0B" IOSTANDARD = LVTTL;
+
+NET "ledr0c1R" LOC = P97;
+NET "ledr0c1R" IOSTANDARD = LVTTL;
+NET "ledr0c1G" LOC = P95;
+NET "ledr0c1G" IOSTANDARD = LVTTL;
+NET "ledr0c1B" LOC = P94;
+NET "ledr0c1B" IOSTANDARD = LVTTL;
+
+NET "ledr0c2R" LOC = P92;
+NET "ledr0c2R" IOSTANDARD = LVTTL;
+NET "ledr0c2G" LOC = P88;
+NET "ledr0c2G" IOSTANDARD = LVTTL;
+NET "ledr0c2B" LOC = P87;
+NET "ledr0c2B" IOSTANDARD = LVTTL;
+
+NET "ledr0c3R" LOC = P66;
+NET "ledr0c3R" IOSTANDARD = LVTTL;
+NET "ledr0c3G" LOC = P58;
+NET "ledr0c3G" IOSTANDARD = LVTTL;
+NET "ledr0c3B" LOC = P57;
+NET "ledr0c3B" IOSTANDARD = LVTTL;
+
+NET "ledr1c0R" LOC = P120;
+NET "ledr1c0R" IOSTANDARD = LVTTL;
+NET "ledr1c0G" LOC = P119;
+NET "ledr1c0G" IOSTANDARD = LVTTL;
+NET "ledr1c0B" LOC = P118;
+NET "ledr1c0B" IOSTANDARD = LVTTL;
+
+NET "ledr1c1R" LOC = P116;
+NET "ledr1c1R" IOSTANDARD = LVTTL;
+NET "ledr1c1G" LOC = P115;
+NET "ledr1c1G" IOSTANDARD = LVTTL;
+NET "ledr1c1B" LOC = P114;
+NET "ledr1c1B" IOSTANDARD = LVTTL;
+
+NET "ledr1c2R" LOC = P111;
+NET "ledr1c2R" IOSTANDARD = LVTTL;
+NET "ledr1c2G" LOC = P105;
+NET "ledr1c2G" IOSTANDARD = LVTTL;
+NET "ledr1c2B" LOC = P104;
+NET "ledr1c2B" IOSTANDARD = LVTTL;
+
+NET "ledr1c3R" LOC = P82;
+NET "ledr1c3R" IOSTANDARD = LVTTL;
+NET "ledr1c3G" LOC = P81;
+NET "ledr1c3G" IOSTANDARD = LVTTL;
+NET "ledr1c3B" LOC = P80;
+NET "ledr1c3B" IOSTANDARD = LVTTL;
+
+NET "ledr2c0R" LOC = P123;
+NET "ledr2c0R" IOSTANDARD = LVTTL;
+NET "ledr2c0G" LOC = P127;
+NET "ledr2c0G" IOSTANDARD = LVTTL;
+NET "ledr2c0B" LOC = P126;
+NET "ledr2c0B" IOSTANDARD = LVTTL;
+
+NET "ledr2c1R" LOC = P137;
+NET "ledr2c1R" IOSTANDARD = LVTTL;
+NET "ledr2c1G" LOC = P140;
+NET "ledr2c1G" IOSTANDARD = LVTTL;
+NET "ledr2c1B" LOC = P139;
+NET "ledr2c1B" IOSTANDARD = LVTTL;
+
+NET "ledr2c2R" LOC = P1;
+NET "ledr2c2R" IOSTANDARD = LVTTL;
+NET "ledr2c2G" LOC = P6;
+NET "ledr2c2G" IOSTANDARD = LVTTL;
+NET "ledr2c2B" LOC = P5;
+NET "ledr2c2B" IOSTANDARD = LVTTL;
+
+NET "ledr2c3R" LOC = P11;
+NET "ledr2c3R" IOSTANDARD = LVTTL;
+NET "ledr2c3G" LOC = P15;
+NET "ledr2c3G" IOSTANDARD = LVTTL;
+NET "ledr2c3B" LOC = P14;
+NET "ledr2c3B" IOSTANDARD = LVTTL;
+
+NET "ledr3c0R" LOC = P131;
+NET "ledr3c0R" IOSTANDARD = LVTTL;
+NET "ledr3c0G" LOC = P134;
+NET "ledr3c0G" IOSTANDARD = LVTTL;
+NET "ledr3c0B" LOC = P133;
+NET "ledr3c0B" IOSTANDARD = LVTTL;
+
+NET "ledr3c1R" LOC = P141;
+NET "ledr3c1R" IOSTANDARD = LVTTL;
+NET "ledr3c1G" LOC = P144;
+NET "ledr3c1G" IOSTANDARD = LVTTL;
+NET "ledr3c1B" LOC = P143;
+NET "ledr3c1B" IOSTANDARD = LVTTL;
+
+NET "ledr3c2R" LOC = P7;
+NET "ledr3c2R" IOSTANDARD = LVTTL;
+NET "ledr3c2G" LOC = P10;
+NET "ledr3c2G" IOSTANDARD = LVTTL;
+NET "ledr3c2B" LOC = P9;
+NET "ledr3c2B" IOSTANDARD = LVTTL;
+
+NET "ledr3c3R" LOC = P16;
+NET "ledr3c3R" IOSTANDARD = LVTTL;
+NET "ledr3c3G" LOC = P22;
+NET "ledr3c3G" IOSTANDARD = LVTTL;
+NET "ledr3c3B" LOC = P21;
+NET "ledr3c3B" IOSTANDARD = LVTTL;

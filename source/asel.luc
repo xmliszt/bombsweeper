@@ -1,0 +1,15 @@
+module asel (
+    input asel_signal,  // ASEL signal
+    input custom_input[16],
+    input ra_data[16],  // data from ra read port of regfile
+    output out[16]
+  ) {
+
+  always {
+    if (asel_signal){
+      out = custom_input;
+      } else {
+      out = ra_data;
+      }
+  }
+}
