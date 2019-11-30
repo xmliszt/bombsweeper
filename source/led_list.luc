@@ -1,0 +1,26 @@
+/********************************************************************
+This module is created for debugging purpose. Its output is a 16bits
+   instruction string encode which led to be ON or OFF
+*/
+module led_list (
+    input clk,
+    input rst,
+    input read_write_signal, // 1 to write, 0 to read, default is read
+    input write_sequence[3][16],
+    output out[3][16]  // 2D array of RGB, each row 16bits represent 16 leds status. 1 ON 0 OFF
+  ) {
+  
+  .clk(clk){
+    .rst(rst){
+      dff led_list[3][16];
+    }  
+  }
+
+  always {
+    led_list.d = led_list.q;
+    if(read_write_signal){
+        led_list.d = led_list.q | write_sequence;
+      }
+    out = led_list.q;
+  }
+}

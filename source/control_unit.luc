@@ -1,0 +1,67 @@
+module control_unit (
+    input custom_signal_b[16],  // for bsel
+    input pn_gen_num[32],
+    input radata_in[16],
+    input reg_addresses_in_a[4],
+    input reg_addresses_in_b[4],
+    input ra_select_signal[2],
+    input rb_select_signal[2],
+    input bsel_input_select_signal,
+    input wdsel_input_select_signal,
+    input wa_select_signal[2],
+    input custom_address[4],  // for any address to be passed in as wa
+    output rb_out[4],
+    output ra_out[4],
+    output wa_out[4],
+    output bsel_b_out[16],
+    output wdsel_b_out[16],
+    output bomb_signal  // 1 if detect radata_in is a bomb. 0 if not a bomb
+  ) {
+          
+  always {
+  
+    // wa address selection
+    case(wa_select_signal){
+      b00: wa_out = pn_gen_num[3:0];  // select from random number generator
+      b01: wa_out = reg_addresses_in_a;  // select from address output a
+      b10: wa_out = reg_addresses_in_b;  // select from address output b
+      b11: wa_out = custom_address;  // select from custom address
+      default: wa_out = b0000;
+      }
+
+    // ra_data input 
+    // for determining whether the register is a bomb    
+    if (radata_in[2] == 1){
+      // is a bomb!
+      bomb_signal = 1;
+      } else {bomb_signal = 0;}
+    
+    // select ra
+    case(ra_select_signal){
+      b0: ra_out = reg_addresses_in_a;  // select from reg_addresses direct input
+      b1: ra_out = pn_gen_num[3:0]; // select from random number generator
+      default: ra_out = b0000;
+      }
+    
+    // select rb
+    case(rb_select_signal){
+      b0: rb_out = reg_addresses_in_b;
+      b1: rb_out = pn_gen_num[3:0]; // select from random number generator
+      default: rb_out = b0000;
+      }
+    
+    // select for wdsel b input
+    case(wdsel_input_select_signal){
+      b0: wdsel_b_out = 16b100;  // constant representation of bomb
+      b1: wdsel_b_out = 0;  // default is reset value for register
+      default: wdsel_b_out = 0;
+      }
+    
+    // select for bsel b input
+    case(bsel_input_select_signal){
+      b0: bsel_b_out = 16b1;   // for ADD and SHL
+      b1: bsel_b_out = custom_signal_b; // from custom_signal
+      default: bsel_b_out = 16b1;
+      }
+  }
+}

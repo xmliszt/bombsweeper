@@ -1,0 +1,49 @@
+module reg_addresses (
+    input index_a[4],
+    input index_b[4],
+    output out_a[4],
+    output out_b[4]
+  ) {
+
+  always {
+    case(index_a){
+      0 : out_a = b0000;
+      1 : out_a = b0001;
+      2 : out_a = b0010;
+      3 : out_a = b0011;
+      4 : out_a = b0100;
+      5 : out_a = b0101;
+      6 : out_a = b0110;
+      7 : out_a = b0111;
+      8 : out_a = b1000;
+      9 : out_a = b1001;
+      10 : out_a = b1010;
+      11 : out_a = b1011;
+      12 : out_a = b1100;
+      13 : out_a = b1101;
+      14 : out_a = b1110;
+      15 : out_a = b1111;
+      default: out_a = b0000;
+      }
+    
+    case(index_b){
+      0 : out_b = b0000;
+      1 : out_b = b0001;
+      2 : out_b = b0010;
+      3 : out_b = b0011;
+      4 : out_b = b0100;
+      5 : out_b = b0101;
+      6 : out_b = b0110;
+      7 : out_b = b0111;
+      8 : out_b = b1000;
+      9 : out_b = b1001;
+      10 : out_b = b1010;
+      11 : out_b = b1011;
+      12 : out_b = b1100;
+      13 : out_b = b1101;
+      14 : out_b = b1110;
+      15 : out_b = b1111;
+      default: out_b = b0000;
+      }
+  }
+}

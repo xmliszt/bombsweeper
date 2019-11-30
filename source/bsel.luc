@@ -1,0 +1,17 @@
+module bsel (
+    input bsel_signal,
+    input rb[16],
+    input cu_data[16],
+    output bsel_out[16]
+){
+
+  always {
+    if (bsel_signal){
+      bsel_out = cu_data;
+    }
+    else {
+      bsel_out = rb;
+    }
+    
+  }
+}

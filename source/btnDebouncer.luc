@@ -1,0 +1,29 @@
+module btnDebouncer (
+    input rst,
+    input clk,  // clock
+    input btn_in,
+    output btn_out
+  ) {
+
+  .clk(clk){
+      fsm bd = {OFF, ON};
+    }
+  always {
+    if(rst){bd.d = bd.OFF;}
+    btn_out = 0;
+    case(bd.q){
+      bd.ON:
+        if(btn_in == 1){
+          btn_out = 1;
+          bd.d = bd.OFF;
+          } else{
+        btn_out = 0;}
+      bd.OFF:
+        if(btn_in == 1){
+          bd.d = bd.OFF;
+          btn_out = 0;
+         } else{
+        bd.d = bd.ON;}
+      }
+  }
+}

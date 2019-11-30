@@ -1,0 +1,29 @@
+module btn_list (
+  
+    input btnr0c0,
+    input btnr0c1,
+    input btnr0c2,
+    input btnr0c3,
+    
+    input btnr1c0,
+    input btnr1c1,
+    input btnr1c2,
+    input btnr1c3,
+        
+    input btnr2c0,
+    input btnr2c1,
+    input btnr2c2,
+    input btnr2c3,
+        
+    input btnr3c0,
+    input btnr3c1,
+    input btnr3c2,
+    input btnr3c3,
+        
+    output btn_list[16]
+  ) {
+
+  always {
+    btn_list = c{btnr3c3,btnr3c2,btnr3c1,btnr3c0,btnr2c3,btnr2c2,btnr2c1,btnr2c0,btnr1c3,btnr1c2,btnr1c1,btnr1c0,btnr0c3,btnr0c2,btnr0c1,btnr0c0};
+  }
+}

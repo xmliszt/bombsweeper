@@ -1,0 +1,184 @@
+module regfile (
+    input clk,  // clock
+    input rst,  // reset
+    input ra[4], // RA address
+    input rb[4], // RB address
+    input we, // write enable signal
+    input wd[16], // write data 16 bits
+    input wa[4], // write address
+    output radata[16], // RA data output
+    output rbdata[16] // RB data output
+  ) {
+  
+    .clk(clk){
+      .rst(rst){
+        dff reg00[16];  // b0000
+        dff reg01[16];  // b0001
+        dff reg02[16];  // b0010
+        dff reg03[16];  // b0011
+        dff reg10[16];  // b0100
+        dff reg11[16];  // b0101
+        dff reg12[16];  // b0110
+        dff reg13[16];  // b0111
+        dff reg20[16];  // b1000
+        dff reg21[16];  // b1001
+        dff reg22[16];  // b1010
+        dff reg23[16];  // b1011
+        dff reg30[16];  // b1100
+        dff reg31[16];  // b1101
+        dff reg32[16];  // b1110
+        dff reg33[16];  // b1111
+        }
+    }
+
+  always {
+
+    // if write is enabled
+    if (we){
+      case(wa){
+        b0000:
+          reg00.d = wd;
+        b0001:
+          reg01.d = wd;
+        b0010:
+          reg02.d = wd;
+        b0011:
+          reg03.d = wd;
+        b0100:
+          reg10.d = wd;
+        b0101:
+          reg11.d = wd;
+        b0110:
+          reg12.d = wd;
+        b0111:
+          reg13.d = wd;
+        b1000:
+          reg20.d = wd;
+        b1001:
+          reg21.d = wd;
+        b1010:
+          reg22.d = wd;
+        b1011:
+          reg23.d = wd;
+        b1100:
+          reg30.d = wd;
+        b1101:
+          reg31.d = wd;
+        b1110:
+          reg32.d = wd;
+        b1111:
+          reg33.d = wd;
+        }
+      } else{
+        case(wa){
+        b0000:
+          reg00.d = reg00.q;
+        b0001:
+          reg01.d = reg01.q;
+        b0010:
+          reg02.d = reg02.q;
+        b0011:
+          reg03.d = reg03.q;
+        b0100:
+          reg10.d = reg10.q;
+        b0101:
+          reg11.d = reg11.q;
+        b0110:
+          reg12.d = reg12.q;
+        b0111:
+          reg13.d = reg13.q;
+        b1000:
+          reg20.d = reg20.q;
+        b1001:
+          reg21.d = reg21.q;
+        b1010:
+          reg22.d = reg22.q;
+        b1011:
+          reg23.d = reg23.q;
+        b1100:
+          reg30.d = reg30.q;
+        b1101:
+          reg31.d = reg31.q;
+        b1110:
+          reg32.d = reg32.q;
+        b1111:
+          reg33.d = reg33.q;
+        }
+      }
+    // read
+    // select ra value
+    case(ra){
+      b0000:
+        radata = reg00.q;
+      b0001:
+        radata = reg01.q;
+      b0010:
+        radata = reg02.q;
+      b0011:
+        radata = reg03.q;
+      b0100:
+        radata = reg10.q;
+      b0101:
+        radata = reg11.q;
+      b0110:
+        radata = reg12.q;
+      b0111:
+        radata = reg13.q;
+      b1000:
+        radata = reg20.q;
+      b1001:
+        radata = reg21.q;
+      b1010:
+        radata = reg22.q;
+      b1011:
+        radata = reg23.q;
+      b1100:
+        radata = reg30.q;
+      b1101:
+        radata = reg31.q;
+      b1110:
+        radata = reg32.q;
+      b1111:
+        radata = reg33.q;
+      default:
+        radata = 0;
+      }
+
+    case(rb){
+      b0000:
+        rbdata = reg00.q;
+      b0001:
+        rbdata = reg01.q;
+      b0010:
+        rbdata = reg02.q;
+      b0011:
+        rbdata = reg03.q;
+      b0100:
+        rbdata = reg10.q;
+      b0101:
+        rbdata = reg11.q;
+      b0110:
+        rbdata = reg12.q;
+      b0111:
+        rbdata = reg13.q;
+      b1000:
+        rbdata = reg20.q;
+      b1001:
+        rbdata = reg21.q;
+      b1010:
+        rbdata = reg22.q;
+      b1011:
+        rbdata = reg23.q;
+      b1100:
+        rbdata = reg30.q;
+      b1101:
+        rbdata = reg31.q;
+      b1110:
+        rbdata = reg32.q;
+      b1111:
+        rbdata = reg33.q;
+      default:
+        rbdata = 0;
+      }
+   }
+}

@@ -1,0 +1,1315 @@
+module mojo_top (
+    input clk,              // 50MHz clock
+    input rst_n,            // reset button (active low)
+    output led [8],         // 8 user controllable LEDs
+    input cclk,             // configuration clock, AVR ready when high
+    output spi_miso,        // AVR SPI MISO
+    input spi_ss,           // AVR SPI Slave Select
+    input spi_mosi,         // AVR SPI MOSI
+    input spi_sck,          // AVR SPI Clock
+    output spi_channel [4], // AVR general purpose pins (used by default to select ADC channel)
+    input avr_tx,           // AVR TX (FPGA RX)
+    output avr_rx,          // AVR RX (FPGA TX)
+    input avr_rx_busy,       // AVR RX buffer full
+    
+    // button inputs
+    input btnr0c0,
+    input btnr0c1,
+    input btnr0c2,
+    input btnr0c3,
+    input btnr1c0,
+    input btnr1c1,
+    input btnr1c2,
+    input btnr1c3,
+    input btnr2c0,
+    input btnr2c1,
+    input btnr2c2,
+    input btnr2c3,
+    input btnr3c0,
+    input btnr3c1,
+    input btnr3c2,
+    input btnr3c3,
+    
+    // led outputs
+    output ledr0c0R,
+    output ledr0c0G,
+    output ledr0c0B,
+    output ledr0c1R,
+    output ledr0c1G,
+    output ledr0c1B,
+    output ledr0c2R,
+    output ledr0c2G,
+    output ledr0c2B,
+    output ledr0c3R,
+    output ledr0c3G,
+    output ledr0c3B,
+    output ledr1c0R,
+    output ledr1c0G,
+    output ledr1c0B,
+    output ledr1c1R,
+    output ledr1c1G,
+    output ledr1c1B,
+    output ledr1c2R,
+    output ledr1c2G,
+    output ledr1c2B,
+    output ledr1c3R,
+    output ledr1c3G,
+    output ledr1c3B,
+    output ledr2c0R,
+    output ledr2c0G,
+    output ledr2c0B,
+    output ledr2c1R,
+    output ledr2c1G,
+    output ledr2c1B,
+    output ledr2c2R,
+    output ledr2c2G,
+    output ledr2c2B,
+    output ledr2c3R,
+    output ledr2c3G,
+    output ledr2c3B,
+    output ledr3c0R,
+    output ledr3c0G,
+    output ledr3c0B,
+    output ledr3c1R,
+    output ledr3c1G,
+    output ledr3c1B,
+    output ledr3c2R,
+    output ledr3c2G,
+    output ledr3c2B,
+    output ledr3c3R,
+    output ledr3c3G,
+    output ledr3c3B
+  ) {
+  
+  sig rst;                  // reset signal
+  sig pn_gen_rst;           // reset signal for random_generator
+ 
+  .clk(clk) {
+    // The reset conditioner is used to synchronize the reset signal to the FPGA
+    // clock. This ensures the entire FPGA comes out of reset at the same time.
+    reset_conditioner reset_cond;
+
+    edge_detector edge_det00(#RISE(1), #FALL(0));
+    button_conditioner btn_cond00;
+    edge_detector edge_det01(#RISE(1), #FALL(0));
+    button_conditioner btn_cond01;
+    edge_detector edge_det02(#RISE(1), #FALL(0));
+    button_conditioner btn_cond02;
+    edge_detector edge_det03(#RISE(1), #FALL(0));
+    button_conditioner btn_cond03;
+    edge_detector edge_det10(#RISE(1), #FALL(0));
+    button_conditioner btn_cond10;
+    edge_detector edge_det11(#RISE(1), #FALL(0));
+    button_conditioner btn_cond11;
+    edge_detector edge_det12(#RISE(1), #FALL(0));
+    button_conditioner btn_cond12;
+    edge_detector edge_det13(#RISE(1), #FALL(0));
+    button_conditioner btn_cond13;
+    edge_detector edge_det20(#RISE(1), #FALL(0));
+    button_conditioner btn_cond20;
+    edge_detector edge_det21(#RISE(1), #FALL(0));
+    button_conditioner btn_cond21;
+    edge_detector edge_det22(#RISE(1), #FALL(0));
+    button_conditioner btn_cond22;
+    edge_detector edge_det23(#RISE(1), #FALL(0));
+    button_conditioner btn_cond23;
+    edge_detector edge_det30(#RISE(1), #FALL(0));
+    button_conditioner btn_cond30;
+    edge_detector edge_det31(#RISE(1), #FALL(0));
+    button_conditioner btn_cond31;
+    edge_detector edge_det32(#RISE(1), #FALL(0));
+    button_conditioner btn_cond32;
+    edge_detector edge_det33(#RISE(1), #FALL(0));
+    button_conditioner btn_cond33;
+        
+    dff seed[32];
+    dff score[16];  // for storing scores to display in the menu
+    dff score_display[16];  // for displaying score onto LED  
+    pn_gen random_generator;  // pn_gen rst is defined separately
+  
+    .rst(rst){
+    
+      // Debouncer need to be reset to revert all button status
+      btnDebouncer btnDeb00;
+      btnDebouncer btnDeb01;
+      btnDebouncer btnDeb02;
+      btnDebouncer btnDeb03;
+      btnDebouncer btnDeb10;
+      btnDebouncer btnDeb11;
+      btnDebouncer btnDeb12;
+      btnDebouncer btnDeb13;
+      btnDebouncer btnDeb20;
+      btnDebouncer btnDeb21;
+      btnDebouncer btnDeb22;
+      btnDebouncer btnDeb23;
+      btnDebouncer btnDeb30;
+      btnDebouncer btnDeb31;
+      btnDebouncer btnDeb32;
+      btnDebouncer btnDeb33;
+    
+      dff index_counter[16];  // for counting loops, and other stuffs :)
+      dff seq_counter[4];  // for counting bombs tile sequence check
+      dff temp_reg[16];  // to store temp 16bits data
+      dff temp_reg2[16];  // one temp reg is not enough :((
+      dff debug_reg[16];  // for debugging
+      dff debug_reg_2[16];  // one not enough :(
+      dff temp_led_data[3][16];  // save led RGB data temporarily
+      dff btn_status[16];  // shows the current button pressed status. For WIN condition check
+      dff difficulty[2];  // difficulty level from 0 to 2
+      dff bomb_count[3];  // store the number of bombs to place
+      dff auto_manual_indicator;  // 0 for auto, 1 for manual
+      
+      regfile regfile;
+      
+      fsm state = {
+        MENU,  // user menu to choose game mode
+        AUTO,  // auto assign bombs according to difficulty selected
+        MANUAL,  // user manually place three bombs
+        CHECK,  // check that all bombs have been placed
+        READ,  // start reading all 16 tiles and add bomb_count accordingly
+        READ0SEQ,  // The following 16 sequences define for each tile, who are the ones that need to add bomb_count
+        READ1SEQ,
+        READ2SEQ,
+        READ3SEQ,
+        READ4SEQ,
+        READ5SEQ,
+        READ6SEQ,
+        READ7SEQ,
+        READ8SEQ,
+        READ9SEQ,
+        READ10SEQ,
+        READ11SEQ,
+        READ12SEQ,
+        READ13SEQ,
+        READ14SEQ,
+        READ15SEQ,
+        WRITE,  // write bomb count to the corresponding tile register
+        GAME,  // game state of mining
+        WIN,  // all light up green
+        LOSS    // all light up red   
+      };
+    } 
+  }
+
+  sig tempsig16[16];  // a temporary 16bits signal for you to use :)
+  sig tempsig16_2[16];  // another temporary 16bits signal to use :)
+  sig tempsig4[4]; // a temporary 4bits address signal :)
+  sig tempsig; // 1-bit temporary signal for you to use :)
+  sig led_color[2];  // stores the led color 2-bits representation 
+  sig led_display[3][16];  // RGB led_display profile for the entire board
+  
+  // all button signals take in the current button status: 0 OFF | 1 ON
+  sig btn00;
+  sig btn01;
+  sig btn02;
+  sig btn03;
+  sig btn10;
+  sig btn11;
+  sig btn12;
+  sig btn13;
+  sig btn20;
+  sig btn21;
+  sig btn22;
+  sig btn23;
+  sig btn30;
+  sig btn31;
+  sig btn32;
+  sig btn33;
+    
+  // the following modules do not require reset and clk
+  alu alu;
+  bsel bsel;
+  wdsel wdsel;
+  control_unit control_unit;
+  reg_addresses reg_addresses;
+    
+  always {
+    reset_cond.in = ~rst_n; // input raw inverted reset signal
+    rst = reset_cond.out;   // conditioned reset
+    pn_gen_rst = reset_cond.out;  // wired together with general reset button
+    
+    led = 8h00;             // turn LEDs off
+    spi_miso = bz;          // not using SPI
+    spi_channel = bzzzz;    // not using flags
+    avr_rx = bz;            // not using serial port
+    
+    reset_cond.in = ~rst_n; // input raw inverted reset signal
+    rst = reset_cond.out;   // conditioned reset
+    
+    led = 8h00;             // turn LEDs off
+    spi_miso = bz;          // not using SPI
+    spi_channel = bzzzz;    // not using flags
+    avr_rx = bz;            // not using serial port
+    
+    seed.d = 2968816;  // random seed number -> change this to change the auto bomb assignment patterns
+    
+    //  initialize all leds to be OFF
+    ledr0c0R = 0;
+    ledr0c0G = 0;
+    ledr0c0B = 0;
+    ledr0c1R = 0;
+    ledr0c1G = 0;
+    ledr0c1B = 0;
+    ledr0c2R = 0;
+    ledr0c2G = 0;
+    ledr0c2B = 0;
+    ledr0c3R = 0;
+    ledr0c3G = 0;
+    ledr0c3B = 0;
+       
+    ledr1c0R = 0;
+    ledr1c0G = 0;
+    ledr1c0B = 0;
+    ledr1c1R = 0;
+    ledr1c1G = 0;
+    ledr1c1B = 0;
+    ledr1c2R = 0;
+    ledr1c2G = 0;
+    ledr1c2B = 0;
+    ledr1c3R = 0;
+    ledr1c3G = 0;
+    ledr1c3B = 0;
+    
+    ledr2c0R = 0;
+    ledr2c0G = 0;
+    ledr2c0B = 0;
+    ledr2c1R = 0;
+    ledr2c1G = 0;
+    ledr2c1B = 0;
+    ledr2c2R = 0;
+    ledr2c2G = 0;
+    ledr2c2B = 0;
+    ledr2c3R = 0;
+    ledr2c3G = 0;
+    ledr2c3B = 0;
+    
+    ledr3c0R = 0;
+    ledr3c0G = 0;
+    ledr3c0B = 0;
+    ledr3c1R = 0;
+    ledr3c1G = 0;
+    ledr3c1B = 0;
+    ledr3c2R = 0;
+    ledr3c2G = 0;
+    ledr3c2B = 0;
+    ledr3c3R = 0;
+    ledr3c3G = 0;
+    ledr3c3B = 0;
+    
+    // Button full connection [Btn-CONDITIONER-EDGE-DEBOUNCER]
+    btn_cond00.in = btnr0c0;
+    edge_det00.in = btn_cond00.out;
+    btnDeb00.btn_in = edge_det00.out;
+    btn00 = btnDeb00.btn_out;
+    
+    btn_cond01.in = btnr0c1;
+    edge_det01.in = btn_cond01.out;
+    btnDeb01.btn_in = edge_det01.out;
+    btn01 = btnDeb01.btn_out;
+    
+    btn_cond02.in = btnr0c2;
+    edge_det02.in = btn_cond02.out;
+    btnDeb02.btn_in = edge_det02.out;
+    btn02 = btnDeb02.btn_out;
+    
+    btn_cond03.in = btnr0c3;
+    edge_det03.in = btn_cond03.out;
+    btnDeb03.btn_in = edge_det03.out;
+    btn03 = btnDeb03.btn_out;
+    
+    btn_cond10.in = btnr1c0;
+    edge_det10.in = btn_cond10.out;
+    btnDeb10.btn_in = edge_det10.out;
+    btn10 = btnDeb10.btn_out;
+    
+    btn_cond11.in = btnr1c1;
+    edge_det11.in = btn_cond11.out;
+    btnDeb11.btn_in = edge_det11.out;
+    btn11 = btnDeb11.btn_out;
+    
+    btn_cond12.in = btnr1c2;
+    edge_det12.in = btn_cond12.out;
+    btnDeb12.btn_in = edge_det12.out;
+    btn12 = btnDeb12.btn_out;
+    
+    btn_cond13.in = btnr1c3;
+    edge_det13.in = btn_cond13.out;
+    btnDeb13.btn_in = edge_det13.out;
+    btn13 = btnDeb13.btn_out;
+    
+    btn_cond20.in = btnr2c0;
+    edge_det20.in = btn_cond20.out;
+    btnDeb20.btn_in = edge_det20.out;
+    btn20 = btnDeb20.btn_out;
+    
+    btn_cond21.in = btnr2c1;
+    edge_det21.in = btn_cond21.out;
+    btnDeb21.btn_in = edge_det21.out;
+    btn21 = btnDeb21.btn_out;
+    
+    btn_cond22.in = btnr2c2;
+    edge_det22.in = btn_cond22.out;
+    btnDeb22.btn_in = edge_det22.out;
+    btn22 = btnDeb22.btn_out;
+    
+    btn_cond23.in = btnr2c3;
+    edge_det23.in = btn_cond23.out;
+    btnDeb23.btn_in = edge_det23.out;
+    btn23 = btnDeb23.btn_out;
+    
+    btn_cond30.in = btnr3c0;
+    edge_det30.in = btn_cond30.out;
+    btnDeb30.btn_in = edge_det30.out;
+    btn30 = btnDeb30.btn_out;
+    
+    btn_cond31.in = btnr3c1;
+    edge_det31.in = btn_cond31.out;
+    btnDeb31.btn_in = edge_det31.out;
+    btn31 = btnDeb31.btn_out;
+    
+    btn_cond32.in = btnr3c2;
+    edge_det32.in = btn_cond32.out;
+    btnDeb32.btn_in = edge_det32.out;
+    btn32 = btnDeb32.btn_out;
+    
+    btn_cond33.in = btnr3c3;
+    edge_det33.in = btn_cond33.out;
+    btnDeb33.btn_in = edge_det33.out;
+    btn33 = btnDeb33.btn_out;
+    
+    // init random generator
+    random_generator.seed = seed.q;
+    random_generator.next = 0;
+    random_generator.rst = pn_gen_rst;
+    
+    // set control_unit
+    control_unit.reg_addresses_in_a = reg_addresses.out_a;
+    control_unit.reg_addresses_in_b = reg_addresses.out_b;
+    control_unit.pn_gen_num = random_generator.num;
+    control_unit.radata_in = regfile.radata;
+    control_unit.ra_select_signal = b0;
+    control_unit.rb_select_signal = b0;
+    control_unit.wa_select_signal = b00;
+    control_unit.bsel_input_select_signal = 0;
+    control_unit.wdsel_input_select_signal = b0;
+    control_unit.custom_address = 0;
+    control_unit.custom_signal_b = 0;
+    
+    // init debug_reg
+    debug_reg.d = debug_reg.q;
+    debug_reg_2.d = debug_reg_2.q;
+    index_counter.d = index_counter.q;
+    temp_reg.d = temp_reg.q;
+    temp_reg2.d = temp_reg2.q;
+    
+    // set regfile inputs to be initial values
+    regfile.wa = control_unit.wa_out;
+    regfile.we = 0;
+    regfile.wd = wdsel.wdsel_out;
+    regfile.ra = control_unit.ra_out;
+    regfile.rb = control_unit.rb_out;
+    
+    // init alu
+    alu.alufn = b00000;
+    alu.a = regfile.radata;
+    alu.b = bsel.bsel_out;
+    
+    // init bsel
+    bsel.cu_data = control_unit.bsel_b_out;
+    bsel.bsel_signal = 0;
+    bsel.rb = regfile.rbdata;
+    
+    // init wdsel
+    wdsel.wdsel_signal = 0;
+    wdsel.b = control_unit.wdsel_b_out;
+    wdsel.a = alu.out;
+    
+    // reg_addresses module input init
+    reg_addresses.index_b = 0;
+    reg_addresses.index_a = 0;
+    
+    // set up all the other dff connection
+    score.d = score.q;
+    difficulty.d = difficulty.q;
+    bomb_count.d = bomb_count.q;  
+    btn_status.d = btn_status.q;
+    seq_counter.d = seq_counter.q;
+    score_display.d = score_display.q; 
+    temp_led_data.d = temp_led_data.q; 
+    auto_manual_indicator.d = auto_manual_indicator.q;
+    
+    if(rst){seed.d = seed.q + 5; score.d = 0; score_display.d = 0; pn_gen_rst = 1;}
+    
+    case (state.q){
+    
+      state.MENU:
+      
+        tempsig16 = score.q;  // get current score
+        if(tempsig16 > 0 && tempsig16 < 12){  // within score display boundary 0~11
+          alu.a = 16b1000000000000000;
+          alu.b = tempsig16+3;  // skip the most significant 4 bits which are game mode options
+          alu.alufn = b100011;  // SRA
+          tempsig16_2 = alu.out;
+          tempsig16 = score_display.q;  // get previous score_display profile
+          tempsig16 =  tempsig16 | tempsig16_2;  // merge current with previous profile
+          score_display.d = tempsig16;}  // update score_display profile
+        else if(tempsig16 > 11){score.d = 0; score_display.d = 0; tempsig16 = 0;} // reset display profile
+        else{tempsig16 = 16b0;}
+        
+        // score display
+        ledr0c0B = tempsig16[0];
+        ledr0c1B = tempsig16[1];
+        ledr0c2B = tempsig16[2];
+        ledr0c3B = tempsig16[3];
+        ledr1c0B = tempsig16[4];
+        ledr1c1B = tempsig16[5];
+        ledr1c2B = tempsig16[6];
+        ledr1c3B = tempsig16[7];
+        ledr2c0B = tempsig16[8];
+        ledr2c1B = tempsig16[9];
+        ledr2c2B = tempsig16[10];
+        ledr2c3B = tempsig16[11];
+        
+        // difficulty 0: YELLOW
+        ledr3c0R = 1;
+        ledr3c0G = 1;        
+        //difficulty 1: BLUE
+        ledr3c1B = 1;
+        //difficulty 2: PURPLE
+        ledr3c2B = 1;
+        ledr3c2R = 1;
+        // buttom right button GREEN light - MANUAL mode
+        ledr3c3G = 1;
+        if(btn30){difficulty.d = 0; auto_manual_indicator.d = 0; pn_gen_rst = 1; state.d = state.AUTO;}
+        else if(btn31){difficulty.d = 1; auto_manual_indicator.d = 0; pn_gen_rst = 1; state.d = state.AUTO;}
+        else if(btn32){difficulty.d = 2; auto_manual_indicator.d = 0; pn_gen_rst = 1; state.d = state.AUTO;}
+        else if(btn33){temp_reg.d = b1111111111111111; auto_manual_indicator.d = 1; temp_reg2.d = 0; state.d = state.MANUAL;}
+        else{state.d = state.MENU;}
+      
+      state.MANUAL:
+        if(btn00){
+          reg_addresses.index_a = 0;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn01){
+          reg_addresses.index_a = 1;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn02){
+          reg_addresses.index_a = 2;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn03){
+          reg_addresses.index_a = 3;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn10){
+          reg_addresses.index_a = 4;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn11){
+          reg_addresses.index_a = 5;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn12){
+          reg_addresses.index_a = 6;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn13){
+          reg_addresses.index_a = 7;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn20){
+          reg_addresses.index_a = 8;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn21){
+          reg_addresses.index_a = 9;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn22){
+          reg_addresses.index_a = 10;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn23){
+          reg_addresses.index_a = 11;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn30){
+          reg_addresses.index_a = 12;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn31){
+          reg_addresses.index_a = 13;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn32){
+          reg_addresses.index_a = 14;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn33){
+          reg_addresses.index_a = 15;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else{reg_addresses.index_a = temp_reg.q;}
+        
+        tempsig16 = temp_reg.q;
+        if(tempsig16 == b1111111111111111){  // no button pressed yet
+          tempsig16 = temp_reg2.q;  // get the previous led display profile
+          ledr0c0R = tempsig16[0];  // light them up!
+          ledr0c1R = tempsig16[1];
+          ledr0c2R = tempsig16[2];
+          ledr0c3R = tempsig16[3];
+          ledr1c0R = tempsig16[4];
+          ledr1c1R = tempsig16[5];
+          ledr1c2R = tempsig16[6];
+          ledr1c3R = tempsig16[7];
+          ledr2c0R = tempsig16[8];
+          ledr2c1R = tempsig16[9];
+          ledr2c2R = tempsig16[10];
+          ledr2c3R = tempsig16[11];
+          ledr3c0R = tempsig16[12];
+          ledr3c1R = tempsig16[13];
+          ledr3c2R = tempsig16[14];
+          ledr3c3R = tempsig16[15];
+          state.d = state.MANUAL;}
+        else{ // button pressed -> place bomb
+          tempsig4 = bomb_count.q;
+          if(tempsig4 < 3){
+          // write in bomb marker, go check total bomb number
+          control_unit.wa_select_signal = b11;
+          control_unit.custom_address = tempsig16;
+          control_unit.wdsel_input_select_signal = 0;  // select bomb marker
+          wdsel.wdsel_signal = 1;
+          regfile.we = 1;
+          tempsig4 = reg_addresses.out_a;  // as SHL b input
+          alu.a = 16b1;
+          alu.b = tempsig4;
+          alu.alufn = b100000;  // SHL
+          tempsig16 = alu.out | temp_reg2.q;
+          temp_reg2.d = tempsig16;
+          bomb_count.d = 0;
+          state.d = state.CHECK;}
+          else{bomb_count.d = 0; state.d = state.READ;}
+        }
+        
+      state.AUTO:
+          tempsig4 = difficulty.q;  // get difficulty level
+          case(tempsig4){
+          0: tempsig16 = 1;  // number of bombs to place
+          1: tempsig16 = 2;
+          2: tempsig16 = 3;
+          default: tempsig16 = 1;}
+        
+          tempsig4 = bomb_count.q;  // get previous bomb count
+          if(tempsig4 < tempsig16){  // haven't placed all bombs yet
+            pn_gen_rst = 1;  // reset pn_gen
+            random_generator.next = 1;  // generate a new number
+            control_unit.wa_select_signal = b00;  // select random gen to be wa 
+            regfile.we = 1;  // enable write
+            control_unit.wdsel_input_select_signal = 0; // to select bomb marker to output
+            wdsel.wdsel_signal = 1;  // select from CU
+            bomb_count.d = 0;  // reset bomb_count for re-counting in next loop
+            state.d = state.CHECK;
+          }  // select bomb marker from CU
+          else {  // placed all bombs already
+            index_counter.d = 0;
+            seed.d = seed.q + 1;
+            bomb_count.d = 0;
+            state.d = state.READ;
+            }
+          
+      state.CHECK:
+        if (index_counter.q > 15){ // looped through all tiles
+          index_counter.d = 0;
+          tempsig = auto_manual_indicator.q;  // see go back to which mode
+          case(tempsig){
+            0: state.d = state.AUTO;
+            1: temp_reg.d = b1111111111111111; state.d = state.MANUAL;
+            }
+          } else {
+          tempsig16 = index_counter.q;  // get current index
+          reg_addresses.index_a = tempsig16;
+          control_unit.ra_select_signal = 0;
+          tempsig16 = regfile.radata;
+          if (tempsig16[2] == 1){  // is bomb
+            tempsig16 = index_counter.q;  // get current index
+            btn_status.d[tempsig16] = 1;
+            bomb_count.d = bomb_count.q + 1;}  // add to bomb count 
+          else {tempsig16 = index_counter.q;  // get current index_counter
+                btn_status.d[tempsig16] = 0;}
+          index_counter.d = index_counter.q + 1;
+          state.d = state.CHECK;}
+  
+      state.READ:
+          seq_counter.d = 0;  // reset seq_counter for counting next tile 
+          regfile.we = 0;
+          tempsig16 = index_counter.q;  // start from 0
+          if(tempsig16>15){temp_reg.d = b1111111111111111; index_counter.d = 0; state.d = state.GAME;}
+          else{
+            reg_addresses.index_a = tempsig16;
+            control_unit.ra_select_signal = 0;
+            tempsig = control_unit.bomb_signal;
+            if(tempsig){
+              case(tempsig16){
+                b0000: state.d = state.READ0SEQ;
+                b0001: state.d = state.READ1SEQ;
+                b0010: state.d = state.READ2SEQ;
+                b0011: state.d = state.READ3SEQ;
+                b0100: state.d = state.READ4SEQ;
+                b0101: state.d = state.READ5SEQ;
+                b0110: state.d = state.READ6SEQ;
+                b0111: state.d = state.READ7SEQ;
+                b1000: state.d = state.READ8SEQ;
+                b1001: state.d = state.READ9SEQ;
+                b1010: state.d = state.READ10SEQ;
+                b1011: state.d = state.READ11SEQ;
+                b1100: state.d = state.READ12SEQ;
+                b1101: state.d = state.READ13SEQ;
+                b1110: state.d = state.READ14SEQ;
+                b1111: state.d = state.READ15SEQ;
+              }
+            } else {
+              index_counter.d = index_counter.q + 1;
+              state.d = state.READ;}
+          }
+        
+        state.READ0SEQ:
+          // 1-4-5
+          regfile.we = 0;
+          tempsig4 = seq_counter.q;
+          case (tempsig4){
+            0: 
+              temp_reg.d = 1;
+              state.d = state.WRITE;
+            1: 
+              temp_reg.d = 4;
+              state.d = state.WRITE;
+            2: 
+              temp_reg.d = 5;
+              state.d = state.WRITE;
+            3: 
+              index_counter.d = index_counter.q + 1;
+              state.d = state.READ;
+            }
+        
+        state.READ1SEQ:
+          // 2-6-5-4-0
+          regfile.we = 0;
+          tempsig4 = seq_counter.q;
+          case (tempsig4){
+            0: 
+              temp_reg.d = 2;
+              state.d = state.WRITE;
+            1: 
+              temp_reg.d = 6;
+              state.d = state.WRITE;
+            2: 
+              temp_reg.d = 5;
+              state.d = state.WRITE;
+            3: 
+              temp_reg.d = 4;
+              state.d = state.WRITE;
+            4: 
+              temp_reg.d = 0;
+              state.d = state.WRITE;
+            5: 
+              index_counter.d = index_counter.q + 1;
+              state.d = state.READ;
+            }
+        
+        state.READ2SEQ:
+          // 3-7-6-5-1
+          regfile.we = 0;
+          tempsig4 = seq_counter.q;
+          case (tempsig4){
+            0: 
+              temp_reg.d = 3;
+              state.d = state.WRITE;
+            1: 
+              temp_reg.d = 7;
+              state.d = state.WRITE;
+            2: 
+              temp_reg.d = 6;
+              state.d = state.WRITE;
+            3: 
+              temp_reg.d = 5;
+              state.d = state.WRITE;
+            4: 
+              temp_reg.d = 1;
+              state.d = state.WRITE;
+            5: 
+              index_counter.d = index_counter.q + 1;
+              state.d = state.READ;
+            }
+        
+        state.READ3SEQ:
+          // 7-6-2
+          regfile.we = 0;
+          tempsig4 = seq_counter.q;
+          case (tempsig4){
+            0: 
+              temp_reg.d = 7;
+              state.d = state.WRITE;
+            1: 
+              temp_reg.d = 6;
+              state.d = state.WRITE;
+            2: 
+              temp_reg.d = 2;
+              state.d = state.WRITE;
+            3: 
+              index_counter.d = index_counter.q + 1;
+              state.d = state.READ;
+            }
+        
+        state.READ4SEQ:
+          // 0-1-5-9-8
+          regfile.we = 0;
+          tempsig4 = seq_counter.q;
+          case (tempsig4){
+            0: 
+              temp_reg.d = 0;
+              state.d = state.WRITE;
+            1: 
+              temp_reg.d = 1;
+              state.d = state.WRITE;
+            2: 
+              temp_reg.d = 5;
+              state.d = state.WRITE;
+            3: 
+              temp_reg.d = 9;
+              state.d = state.WRITE;
+            4: 
+              temp_reg.d = 8;
+              state.d = state.WRITE;
+            5: 
+              index_counter.d = index_counter.q + 1;
+              state.d = state.READ;
+            }
+        
+        state.READ5SEQ:
+          // 0-1-2-6-10-9-8-4
+          regfile.we = 0;
+          tempsig4 = seq_counter.q;
+          case (tempsig4){
+            0: 
+              temp_reg.d = 0;
+              state.d = state.WRITE;
+            1: 
+              temp_reg.d = 1;
+              state.d = state.WRITE;
+            2: 
+              temp_reg.d = 2;
+              state.d = state.WRITE;
+            3: 
+              temp_reg.d = 6;
+              state.d = state.WRITE;
+            4: 
+              temp_reg.d = 10;
+              state.d = state.WRITE;
+            5: 
+              temp_reg.d = 9;
+              state.d = state.WRITE;
+            6: 
+              temp_reg.d = 8;
+              state.d = state.WRITE;
+            7: 
+              temp_reg.d = 4;
+              state.d = state.WRITE;
+            8: 
+              index_counter.d = index_counter.q + 1;
+              state.d = state.READ;
+            }
+        
+        state.READ6SEQ:
+          // 1-2-3-7-11-10-9-5
+          regfile.we = 0;
+          tempsig4 = seq_counter.q;
+          case (tempsig4){
+            0: 
+              temp_reg.d = 1;
+              state.d = state.WRITE;
+            1: 
+              temp_reg.d = 2;
+              state.d = state.WRITE;
+            2: 
+              temp_reg.d = 3;
+              state.d = state.WRITE;
+            3: 
+              temp_reg.d = 7;
+              state.d = state.WRITE;
+            4: 
+              temp_reg.d = 11;
+              state.d = state.WRITE;
+            5: 
+              temp_reg.d = 10;
+              state.d = state.WRITE;
+            6: 
+              temp_reg.d = 9;
+              state.d = state.WRITE;
+            7: 
+              temp_reg.d = 5;
+              state.d = state.WRITE;
+            8: 
+              index_counter.d = index_counter.q + 1;
+              state.d = state.READ;
+            }
+        
+        state.READ7SEQ:
+          // 11-10-6-2-3
+          regfile.we = 0;
+          tempsig4 = seq_counter.q;
+          case (tempsig4){
+            0: 
+              temp_reg.d = 11;
+              state.d = state.WRITE;
+            1: 
+              temp_reg.d = 10;
+              state.d = state.WRITE;
+            2: 
+              temp_reg.d = 6;
+              state.d = state.WRITE;
+            3: 
+              temp_reg.d = 2;
+              state.d = state.WRITE;
+            4: 
+              temp_reg.d = 3;
+              state.d = state.WRITE;
+            5: 
+              index_counter.d = index_counter.q + 1;
+              state.d = state.READ;
+            }
+        
+        state.READ8SEQ:
+          // 4-5-9-13-12
+          regfile.we = 0;
+          tempsig4 = seq_counter.q;
+          case (tempsig4){
+            0: 
+              temp_reg.d = 4;
+              state.d = state.WRITE;
+            1: 
+              temp_reg.d = 5;
+              state.d = state.WRITE;
+            2: 
+              temp_reg.d = 9;
+              state.d = state.WRITE;
+            3: 
+              temp_reg.d = 13;
+              state.d = state.WRITE;
+            4: 
+              temp_reg.d = 12;
+              state.d = state.WRITE;
+            5: 
+              index_counter.d = index_counter.q + 1;
+              state.d = state.READ;
+            }
+        
+        state.READ9SEQ:
+          // 4-5-6-10-14-13-12-8
+          regfile.we = 0;
+          tempsig4 = seq_counter.q;
+          case (tempsig4){
+            0: 
+              temp_reg.d = 4;
+              state.d = state.WRITE;
+            1: 
+              temp_reg.d = 5;
+              state.d = state.WRITE;
+            2: 
+              temp_reg.d = 6;
+              state.d = state.WRITE;
+            3: 
+              temp_reg.d = 10;
+              state.d = state.WRITE;
+            4: 
+              temp_reg.d = 14;
+              state.d = state.WRITE;
+            5: 
+              temp_reg.d = 13;
+              state.d = state.WRITE;
+            6: 
+              temp_reg.d = 12;
+              state.d = state.WRITE;
+            7: 
+              temp_reg.d = 8;
+              state.d = state.WRITE;
+            8: 
+              index_counter.d = index_counter.q + 1;
+              state.d = state.READ;
+            }
+        
+        state.READ10SEQ:
+          // 5-6-7-11-15-14-13-9
+          regfile.we = 0;
+          tempsig4 = seq_counter.q;
+          case (tempsig4){
+            0: 
+              temp_reg.d = 5;
+              state.d = state.WRITE;
+            1: 
+              temp_reg.d = 6;
+              state.d = state.WRITE;
+            2: 
+              temp_reg.d = 7;
+              state.d = state.WRITE;
+            3: 
+              temp_reg.d = 11;
+              state.d = state.WRITE;
+            4: 
+              temp_reg.d = 15;
+              state.d = state.WRITE;
+            5: 
+              temp_reg.d = 14;
+              state.d = state.WRITE;
+            6: 
+              temp_reg.d = 13;
+              state.d = state.WRITE;
+            7: 
+              temp_reg.d = 9;
+              state.d = state.WRITE;
+            8: 
+              index_counter.d = index_counter.q + 1;
+              state.d = state.READ;
+            }
+        
+        state.READ11SEQ:
+          // 15-14-10-6-7
+          regfile.we = 0;
+          tempsig4 = seq_counter.q;
+          case (tempsig4){
+            0: 
+              temp_reg.d = 15;
+              state.d = state.WRITE;
+            1: 
+              temp_reg.d = 14;
+              state.d = state.WRITE;
+            2: 
+              temp_reg.d = 10;
+              state.d = state.WRITE;
+            3: 
+              temp_reg.d = 6;
+              state.d = state.WRITE;
+            4: 
+              temp_reg.d = 7;
+              state.d = state.WRITE;
+            5: 
+              index_counter.d = index_counter.q + 1;
+              state.d = state.READ;
+            }
+        
+        state.READ12SEQ:
+          // 8-9-3
+          regfile.we = 0;
+          tempsig4 = seq_counter.q;
+          case (tempsig4){
+            0: 
+              temp_reg.d = 8;
+              state.d = state.WRITE;
+            1: 
+              temp_reg.d = 9;
+              state.d = state.WRITE;
+            2: 
+              temp_reg.d = 3;
+              state.d = state.WRITE;
+            3: 
+              index_counter.d = index_counter.q + 1;
+              state.d = state.READ;
+            }
+        
+        state.READ13SEQ:
+          // 8-9-10-14-12
+          regfile.we = 0;
+          tempsig4 = seq_counter.q;
+          case (tempsig4){
+            0: 
+              temp_reg.d = 8;
+              state.d = state.WRITE;
+            1: 
+              temp_reg.d = 9;
+              state.d = state.WRITE;
+            2: 
+              temp_reg.d = 10;
+              state.d = state.WRITE;
+            3: 
+              temp_reg.d = 14;
+              state.d = state.WRITE;
+            4: 
+              temp_reg.d = 12;
+              state.d = state.WRITE;
+            5: 
+              index_counter.d = index_counter.q + 1;
+              state.d = state.READ;
+            }
+        state.READ14SEQ:
+          // 9-10-11-15-13
+          regfile.we = 0;
+          tempsig4 = seq_counter.q;
+          case (tempsig4){
+            0: 
+              temp_reg.d = 9;
+              state.d = state.WRITE;
+            1: 
+              temp_reg.d = 10;
+              state.d = state.WRITE;
+            2: 
+              temp_reg.d = 11;
+              state.d = state.WRITE;
+            3: 
+              temp_reg.d = 15;
+              state.d = state.WRITE;
+            4: 
+              temp_reg.d = 13;
+              state.d = state.WRITE;
+            5: 
+              index_counter.d = index_counter.q + 1;
+              state.d = state.READ;
+            }
+        
+        state.READ15SEQ:
+          // 14-10-11
+          regfile.we = 0;
+          tempsig4 = seq_counter.q;
+          case (tempsig4){
+            0: 
+              temp_reg.d = 14;
+              state.d = state.WRITE;
+            1: 
+              temp_reg.d = 10;
+              state.d = state.WRITE;
+            2: 
+              temp_reg.d = 11;
+              state.d = state.WRITE;
+            3: 
+              index_counter.d = index_counter.q + 1;
+              state.d = state.READ;
+            }
+              
+        state.WRITE:
+          reg_addresses.index_a = temp_reg.q;  // chooose tile 1 to be RA
+          control_unit.ra_select_signal = 0;  // select from reg_addresses for ra
+          bsel.bsel_signal = 1;  // select from CU
+          control_unit.bsel_input_select_signal = 0;  // select 16b1 to be added in ALU
+          alu.alufn = b000000;  // ADD
+          regfile.we = 1;
+          wdsel.wdsel_signal = 0;  // select from alu
+          control_unit.wa_select_signal = b01;
+          
+          tempsig4 = index_counter.q;  // get current target tile is which tile so that we can go back to the same sequence we want
+          seq_counter.d = seq_counter.q + 1;  // increment seq_counter to move on to next tile in the sequence
+          case(tempsig4){
+            0: state.d = state.READ0SEQ;
+            1: state.d = state.READ1SEQ;
+            2: state.d = state.READ2SEQ;
+            3: state.d = state.READ3SEQ;
+            4: state.d = state.READ4SEQ;
+            5: state.d = state.READ5SEQ;
+            6: state.d = state.READ6SEQ;
+            7: state.d = state.READ7SEQ;
+            8: state.d = state.READ8SEQ;
+            9: state.d = state.READ9SEQ;
+            10: state.d = state.READ10SEQ;
+            11: state.d = state.READ11SEQ;
+            12: state.d = state.READ12SEQ;
+            13: state.d = state.READ13SEQ;
+            14: state.d = state.READ14SEQ;
+            15: state.d = state.READ15SEQ;
+            }
+          
+      state.GAME:
+        regfile.we = 0;
+        if(btn00){
+          reg_addresses.index_a = 0;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn01){
+          reg_addresses.index_a = 1;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn02){
+          reg_addresses.index_a = 2;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn03){
+          reg_addresses.index_a = 3;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn10){
+          reg_addresses.index_a = 4;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn11){
+          reg_addresses.index_a = 5;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn12){
+          reg_addresses.index_a = 6;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn13){
+          reg_addresses.index_a = 7;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn20){
+          reg_addresses.index_a = 8;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn21){
+          reg_addresses.index_a = 9;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn22){
+          reg_addresses.index_a = 10;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn23){
+          reg_addresses.index_a = 11;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn30){
+          reg_addresses.index_a = 12;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn31){
+          reg_addresses.index_a = 13;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn32){
+          reg_addresses.index_a = 14;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else if(btn33){
+          reg_addresses.index_a = 15;
+          temp_reg.d = reg_addresses.out_a;
+          }
+        else{reg_addresses.index_a = temp_reg.q;}
+        
+        tempsig16 = temp_reg.q;
+        if(tempsig16 == b1111111111111111){state.d = state.GAME;}
+        else if(btn_status.q == b1111111111111111){  // WIN condition         
+          tempsig4 = difficulty.q;
+          case(tempsig4){
+            0: score.d = score.q + 1;
+            1: score.d = score.q + 2;
+            2: score.d = score.q + 3;}
+          state.d = state.WIN;
+        }
+        else{
+          control_unit.ra_select_signal = 0;
+          btn_status.d[tempsig16] = 1;
+          tempsig = regfile.radata[2];
+          if (tempsig == 1){   // LOSS condition
+            state.d = state.LOSS;} 
+          else{
+            led_color = regfile.radata[1:0];
+            tempsig4 = reg_addresses.out_a;  // as SHL b input
+            alu.a = 16b1;
+            alu.b = tempsig4;
+            alu.alufn = b100000;  // SHL
+            tempsig16 = alu.out;
+            case(led_color){
+              b00: led_display = {tempsig16, tempsig16, tempsig16};  // Green
+              b01: led_display = {16b0, tempsig16, 16b0};  // Light Blue
+              b10: led_display = {tempsig16, 16b0, 16b0};  // Blue
+              b11: led_display = {tempsig16, 16b0, tempsig16};  // Purple
+              default: led_display = {16b0, tempsig16, 16b0};}
+              
+            ledr0c0R = led_display[0][0];
+            ledr0c0G = led_display[1][0];
+            ledr0c0B = led_display[2][0];
+            ledr0c1R = led_display[0][1];
+            ledr0c1G = led_display[1][1];
+            ledr0c1B = led_display[2][1];
+            ledr0c2R = led_display[0][2];
+            ledr0c2G = led_display[1][2];
+            ledr0c2B = led_display[2][2];
+            ledr0c3R = led_display[0][3];
+            ledr0c3G = led_display[1][3];
+            ledr0c3B = led_display[2][3];
+             
+            ledr1c0R = led_display[0][4];
+            ledr1c0G = led_display[1][4];
+            ledr1c0B = led_display[2][4];
+            ledr1c1R = led_display[0][5];
+            ledr1c1G = led_display[1][5];
+            ledr1c1B = led_display[2][5];
+            ledr1c2R = led_display[0][6];
+            ledr1c2G = led_display[1][6];
+            ledr1c2B = led_display[2][6];
+            ledr1c3R = led_display[0][7];
+            ledr1c3G = led_display[1][7];
+            ledr1c3B = led_display[2][7];
+              
+            ledr2c0R = led_display[0][8];
+            ledr2c0G = led_display[1][8];
+            ledr2c0B = led_display[2][8];
+            ledr2c1R = led_display[0][9];
+            ledr2c1G = led_display[1][9];
+            ledr2c1B = led_display[2][9];
+            ledr2c2R = led_display[0][10];
+            ledr2c2G = led_display[1][10];
+            ledr2c2B = led_display[2][10];
+            ledr2c3R = led_display[0][11];
+            ledr2c3G = led_display[1][11];
+            ledr2c3B = led_display[2][11];
+              
+            ledr3c0R = led_display[0][12];
+            ledr3c0G = led_display[1][12];
+            ledr3c0B = led_display[2][12];
+            ledr3c1R = led_display[0][13];
+            ledr3c1G = led_display[1][13];
+            ledr3c1B = led_display[2][13];
+            ledr3c2R = led_display[0][14];
+            ledr3c2G = led_display[1][14];
+            ledr3c2B = led_display[2][14];
+            ledr3c3R = led_display[0][15];
+            ledr3c3G = led_display[1][15];
+            ledr3c3B = led_display[2][15];
+              
+            state.d = state.GAME;}
+          }
+        
+       state.WIN:
+          if(btn33){rst = 1; state.d = state.MENU;}
+          else{
+            ledr0c0G = 1;
+            ledr0c1G = 1;
+            ledr0c2G = 1;
+            ledr0c3G = 1;
+            ledr1c0G = 1;
+            ledr1c1G = 1;
+            ledr1c2G = 1;
+            ledr1c3G = 1;
+            ledr2c0G = 1;
+            ledr2c1G = 1;
+            ledr2c2G = 1;
+            ledr2c3G = 1;
+            ledr3c0G = 1;
+            ledr3c1G = 1;
+            ledr3c2G = 1;
+            ledr3c3G = 1;
+            state.d = state.WIN;}
+          
+        state.LOSS:
+          if(btn33){ rst = 1; state.d = state.MENU;}
+            else{
+            ledr0c0R = 1;
+            ledr0c1R = 1;
+            ledr0c2R = 1;
+            ledr0c3R = 1;
+            ledr1c0R = 1;
+            ledr1c1R = 1;
+            ledr1c2R = 1;
+            ledr1c3R = 1;
+            ledr2c0R = 1;
+            ledr2c1R = 1;
+            ledr2c2R = 1;
+            ledr2c3R = 1;
+            ledr3c0R = 1;
+            ledr3c1R = 1;
+            ledr3c2R = 1;
+            ledr3c3R = 1;
+            state.d = state.LOSS;}
+    }
+  }
+}

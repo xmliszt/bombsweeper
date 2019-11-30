@@ -1,0 +1,31 @@
+module shift (
+    input a[16],
+    input b[16],
+    input alufn[6],
+    output out[16]
+  ) {
+  
+  multiply multi;
+  
+  always {
+    multi.a = a;
+    multi.b = b;
+    
+    case(alufn[1:0]){
+      //SHL
+      b00:
+        out = a << b[3:0];
+      //SHR
+      b01:
+        out = a >> b[3:0];
+      //SRA
+      b11:
+        out = $signed(a) >>> b[3:0];
+      //100010 multiplication
+      b10:
+        out = multi.mul;
+      default:
+        out = a;
+      }
+  }
+}

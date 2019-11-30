@@ -1,0 +1,17 @@
+module wdsel (
+    input wdsel_signal,
+    input a[16],
+    input b[16],
+    output wdsel_out[16]
+){
+
+  always {
+    if (wdsel_signal){ // if wdsel = 1
+      wdsel_out = b;
+    }
+    else {
+      wdsel_out = a;
+    }
+    
+  }
+}
