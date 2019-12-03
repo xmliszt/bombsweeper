@@ -34,3 +34,4 @@
 * LOSS: all light up red to show player loses
 
 ## Game data path
+![Data Path](data_path.jpg)
